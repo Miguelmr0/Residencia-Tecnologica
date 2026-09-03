@@ -1,0 +1,1 @@
+# Resid-ncia-Tecnol-gica
