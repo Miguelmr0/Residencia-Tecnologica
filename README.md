@@ -27,7 +27,7 @@ TanStack Table, React Hook Form e Zod já estão instalados, mas ainda não fora
 É preciso ter o Node 20.9 ou superior.
 
 ```bash
-git clone [url do repositório]
+git clone [[url do repositório](https://github.com/Miguelmr0/Residencia-Tecnologica.git)]
 cd Residencia-Tecnologica
 npm install
 npm run dev
