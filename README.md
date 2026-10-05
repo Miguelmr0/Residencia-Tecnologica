@@ -4,9 +4,17 @@ Front-end de uma plataforma de gestão corporativa, desenvolvido na Residência 
 
 Não há back-end. Os dados são mockados e passam por uma camada que simula o tempo de resposta de uma API, o que deixa a troca por um servidor real localizada em um só arquivo (explicado mais abaixo).
 
-- Squad: [nomes dos integrantes]
-- Protótipo no Figma: [link]
-- Aplicação publicada: [link, quando houver deploy]
+- Squad:<br>
+  Felipe de Lima<br>
+  Italo Nascimento<br>
+  João Lucas Cisneiros<br>
+  Karen Evelyn<br>
+  Mauricio Adelino<br>
+  Miguel Gomes<br>
+  Miguel Rodrigues<br>
+  Sthefanny Almeida
+  
+- Aplicação publicada: [Em construção]
 
 ## Stack
 
