@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VendorHub
 
-## Getting Started
+Front-end de uma plataforma de gestão corporativa, desenvolvido na Residência da Motiron Technologies. O cenário é o de uma empresa fictícia com várias unidades, que precisa acompanhar documentos, tarefas e indicadores de cada uma em um único painel.
 
-First, run the development server:
+Não há back-end. Os dados são mockados e passam por uma camada que simula o tempo de resposta de uma API, o que deixa a troca por um servidor real localizada em um só arquivo (explicado mais abaixo).
+
+- Squad: [nomes dos integrantes]
+- Protótipo no Figma: [link]
+- Aplicação publicada: [link, quando houver deploy]
+
+## Stack
+
+Next.js 16 (App Router), React 19 e TypeScript, com estilo em Tailwind CSS 4. Os dados são gerenciados pelo TanStack Query, as datas pelo date-fns, os ícones vêm do lucide-react e os testes rodam no Vitest.
+
+TanStack Table, React Hook Form e Zod já estão instalados, mas ainda não foram usados. Entram nas listas e nos formulários.
+
+## Como rodar
+
+É preciso ter o Node 20.9 ou superior.
 
 ```bash
+git clone [url do repositório]
+cd Residencia-Tecnologica
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O app abre em http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para os demais comandos:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test            # testes unitários
+npm run lint        # lint
+npm run build       # build de produção
+npx tsc --noEmit    # checagem de tipos
+```
 
-## Learn More
+## Organização do código
 
-To learn more about Next.js, take a look at the following resources:
+Tudo fica dentro de `src/`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/              rotas e páginas (App Router)
+    (app)/          grupo de rotas que usa sidebar e topbar
+  components/
+    ui/             Button, Badge, Card, Skeleton e demais peças reutilizáveis
+    layout/         sidebar, topbar e app-shell
+  features/         hooks de dados, um por entidade (units, documents, tasks)
+  lib/              regras de negócio e utilitários
+  mocks/            dados falsos que simulam a API
+  types/            tipos de Unidade, Documento e Tarefa
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O caminho dos dados é sempre o mesmo: `mocks` alimenta os `hooks`, os hooks alimentam os `componentes`, e as páginas só montam os componentes. Nenhuma página busca dados por conta própria, e nenhum componente de `ui` conhece regra de negócio.
 
-## Deploy on Vercel
+## Decisões técnicas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Mocks atrás de uma interface assíncrona.** As funções de `src/mocks/db.ts` devolvem Promises com um atraso de 300 a 500 ms, como uma requisição de verdade. Isso permite exibir os estados de carregamento sem esforço extra. Quando existir uma API, só o corpo dessas funções muda; hooks e telas continuam iguais.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Uma chave de cache para cada entidade.** As chaves ficam em `src/lib/query-keys.ts`. Como as listas e o Dashboard consultam a mesma chave, concluir uma tarefa invalida o cache de tarefas e as duas telas se atualizam sozinhas, sem recarregar a página. É assim que o total de pendências do Dashboard acompanha as listagens.
+
+**Status do documento calculado, nunca armazenado.** A função `getDocumentStatus`, em `src/lib/document-status.ts`, compara a data de validade com o dia atual: se já passou, o documento está expirado; se faltam 15 dias ou menos, está próximo do vencimento; acima disso, é válido. Os testes cobrem as bordas da regra (vencido ontem, vence hoje, 15 dias e 16 dias). A função recebe a data de referência por parâmetro, o que torna os testes independentes do dia em que rodam.
+
+**Dois tipos de estado.** Dados que vêm do servidor ficam no TanStack Query. Estado puramente visual, como menu aberto, filtros e modais, fica em `useState`.
+
+**Tipagem.** As três entidades têm tipos próprios em `src/types`, e o projeto não usa `any`.
+
+**Tema em um só lugar.** Cores e fonte estão no bloco `@theme` de `src/app/globals.css`.
+
+## Regras de negócio
+
+Uma unidade é ativa ou inativa. Unidades inativas não recebem novos documentos nem tarefas, e os itens delas aparecem somente para leitura no detalhamento. Uma tarefa tem status Pendente, Em andamento ou Concluída, e só pode ser concluída depois de uma confirmação do usuário.
+
+Em alguns pontos o enunciado não define o comportamento, então adotamos estas interpretações:
+
+- Na interface, a Unidade aparece como "Fornecedor", seguindo o protótipo. No código, o tipo se chama `Unit`.
+- O protótipo prevê um terceiro status de unidade, "Em homologação". Só o status "inativa" bloqueia novos documentos e tarefas.
+- No Dashboard, contam como pendência os documentos próximos do vencimento ou expirados e as tarefas com status Pendente.
+
+## Andamento
+
+- [x] Configuração do projeto, tema e providers do TanStack Query
+- [x] Tipos das entidades
+- [x] Regra de status do documento, com testes
+- [x] Dados mockados e hooks de leitura
+- [x] Layout responsivo (sidebar e topbar) e componentes base
+- [ ] Dashboard (cards e painéis de status)
+- [ ] Lista de Unidades, com busca, filtros e paginação
+- [ ] Lista de Documentos
+- [ ] Lista de Tarefas, com confirmação ao concluir
+- [ ] Detalhamento da Unidade
+- [ ] Login e proteção de rotas
+- [ ] Datas no formato dd/MM/yyyy
+- [ ] Extras: camada de API própria, auditoria, dark mode, mais testes e deploy
