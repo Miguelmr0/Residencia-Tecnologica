@@ -8,6 +8,8 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -17,6 +19,7 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
 }
+
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/unidades", label: "Fornecedores", icon: Building2 },
@@ -26,10 +29,14 @@ const navItems: NavItem[] = [
 
 interface SidebarProps {
   open: boolean;
+  collapsed: boolean;
   onClose: () => void;
+  onToggleCollapsed: () => void;
 }
-export function Sidebar({ open, onClose }: SidebarProps) {
+
+export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: SidebarProps) {
   const pathname = usePathname();
+  const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
     <>
@@ -42,15 +49,35 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-white p-4 transition-transform lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-white p-4 transition-[width,transform] duration-200 lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full",
+          collapsed && "lg:w-20 lg:px-3"
         )}
       >
-        <div className="mb-6 flex items-center gap-3 px-2 pt-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-700 font-bold text-white">
+        <div
+          className={cn(
+            "mb-6 flex items-center gap-3 px-2 pt-2",
+            collapsed && "lg:flex-col lg:px-0"
+          )}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-700 font-bold text-white">
             V
           </div>
-          <span className="text-xl font-bold text-brand-700">VendorHub</span>
+          <span className={cn("text-xl font-bold text-brand-700", collapsed && "lg:hidden")}>
+            VendorHub
+          </span>
+          <button
+            type="button"
+            onClick={onToggleCollapsed}
+            aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+            aria-expanded={!collapsed}
+            className={cn(
+              "ml-auto hidden rounded-md p-2 text-muted hover:bg-slate-100 lg:flex",
+              collapsed && "lg:ml-0"
+            )}
+          >
+            <ToggleIcon className="h-5 w-5" aria-hidden />
+          </button>
         </div>
 
         <nav aria-label="Navegação principal" className="flex flex-1 flex-col gap-1">
@@ -61,24 +88,31 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 key={href}
                 href={href}
                 onClick={onClose}
+                title={collapsed ? label : undefined}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors",
-                  active ? "bg-brand-100 text-brand-700" : "text-muted hover:bg-slate-50"
+                  active ? "bg-brand-100 text-brand-700" : "text-muted hover:bg-slate-50",
+                  collapsed && "lg:justify-center lg:px-0"
                 )}
               >
-                <Icon className="h-5 w-5" aria-hidden />
-                {label}
+                <Icon className="h-5 w-5 shrink-0" aria-hidden />
+                <span className={cn(collapsed && "lg:sr-only")}>{label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-3 rounded-xl bg-brand-50 p-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-white">
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-xl bg-brand-50 p-3",
+            collapsed && "lg:flex-col lg:gap-2 lg:p-2"
+          )}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold text-white">
             MS
           </div>
-          <div className="min-w-0 flex-1">
+          <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
             <p className="truncate text-sm font-semibold">Mariana Silva</p>
             <p className="truncate text-xs text-muted">Compras / Admin</p>
           </div>
