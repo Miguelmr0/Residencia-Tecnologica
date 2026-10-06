@@ -113,7 +113,7 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
             MS
           </div>
           <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
-            <p className="truncate text-sm font-semibold">Mariana Silva</p>
+            <p className="truncate text-sm font-semibold">Teste</p>
             <p className="truncate text-xs text-muted">Compras / Admin</p>
           </div>
           <button type="button" aria-label="Sair" className="rounded-md p-2 text-muted hover:bg-white">
