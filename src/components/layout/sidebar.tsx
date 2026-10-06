@@ -10,6 +10,9 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  SquareText,
+  Settings,
+  RotateCcwClock,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -24,7 +27,10 @@ const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/unidades", label: "Fornecedores", icon: Building2 },
   { href: "/documentos", label: "Documentos", icon: FolderOpen },
+  { href: "/contratos", label: "Contratos", icon: SquareText },
   { href: "/tarefas", label: "Tarefas", icon: ListChecks },
+  { href: "/historico", label: "Histórico", icon: RotateCcwClock},
+  { href: "/settings", label: "Configurações", icon: Settings},
 ];
 
 interface SidebarProps {
