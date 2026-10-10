@@ -15,7 +15,8 @@ import {
   RotateCcwClock,
   type LucideIcon,
 } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   href: string;
@@ -62,8 +63,8 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
       >
         <div
           className={cn(
-            "mb-6 flex items-center gap-3 px-2 pt-2",
-            collapsed && "lg:flex-col lg:px-0"
+            "mb-6 flex items-center gap-3 px-2 pt-2 lg:mb-10",
+            collapsed && "lg:justify-center lg:px-0"
           )}
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-700 font-bold text-white">
@@ -72,18 +73,18 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
           <span className={cn("text-xl font-bold text-brand-700", collapsed && "lg:hidden")}>
             VendorHub
           </span>
-          <button
-            type="button"
+        </div>
+
+        <div className={cn("mb-3 hidden lg:flex", collapsed ? "justify-center" : "justify-end px-1")}>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onToggleCollapsed}
             aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
             aria-expanded={!collapsed}
-            className={cn(
-              "ml-auto hidden rounded-md p-2 text-muted hover:bg-slate-100 lg:flex",
-              collapsed && "lg:ml-0"
-            )}
           >
             <ToggleIcon className="h-5 w-5" aria-hidden />
-          </button>
+          </Button>
         </div>
 
         <nav aria-label="Navegação principal" className="flex flex-1 flex-col gap-1">
@@ -98,7 +99,7 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors",
-                  active ? "bg-brand-100 text-brand-700" : "text-muted hover:bg-slate-50",
+                  active ? "bg-brand-100 text-brand-700" : "text-muted-foreground hover:bg-slate-50",
                   collapsed && "lg:justify-center lg:px-0"
                 )}
               >
@@ -119,12 +120,12 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
             MS
           </div>
           <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
-            <p className="truncate text-sm font-semibold">Teste</p>
-            <p className="truncate text-xs text-muted">Compras / Admin</p>
+            <p className="truncate text-sm font-semibold">Mariana Silva</p>
+            <p className="truncate text-xs text-muted-foreground">Compras / Admin</p>
           </div>
-          <button type="button" aria-label="Sair" className="rounded-md p-2 text-muted hover:bg-white">
+          <Button variant="ghost" size="icon" aria-label="Sair">
             <LogOut className="h-5 w-5" aria-hidden />
-          </button>
+          </Button>
         </div>
       </aside>
     </>
