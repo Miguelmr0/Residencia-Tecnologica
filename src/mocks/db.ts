@@ -1,11 +1,29 @@
 import type { Task, TaskStatus, Unit, UnitDocument } from "@/types";
 
-const units: Unit[] = [
+const baseUnits: Unit[] = [
   { id: "u1", name: "Alpha Tecnologia Ltda.", city: "Recife", manager: "Ana Souza", status: "ativa" },
   { id: "u2", name: "Beta Serviços Corporativos", city: "Olinda", manager: "Carlos Lima", status: "em_homologacao" },
   { id: "u3", name: "Delta Segurança Patrimonial", city: "Caruaru", manager: "Marta Reis", status: "inativa" },
   { id: "u4", name: "Gamma Logística S.A.", city: "Jaboatão", manager: "Paulo Nunes", status: "ativa" },
 ];
+
+// Mais 26 unidades para testar a paginação (o PDF pede dezenas de unidades).
+// Geradas de forma previsível: são sempre as mesmas a cada recarga.
+const prefixes = ["Omega", "Sigma", "Lambda", "Kappa", "Atlas", "Vértice", "Horizonte", "Nova", "Prisma", "Aurora", "Titan", "Orion", "Zênite"];
+const suffixes = ["Serviços Ltda.", "Comércio S.A."];
+const cities = ["Recife", "Olinda", "Caruaru", "Jaboatão", "João Pessoa", "Maceió"];
+const managers = ["Camila Rocha", "Vanessa Prado", "Juliana Paes", "Carlos Nobre", "Rafael Dias", "Beatriz Lopes"];
+const statusCycle: Unit["status"][] = ["ativa", "ativa", "em_homologacao", "ativa", "inativa", "ativa", "em_homologacao"];
+
+const generatedUnits: Unit[] = Array.from({ length: 26 }, (_, i) => ({
+  id: `u${i + 5}`,
+  name: `${prefixes[i % prefixes.length]} ${suffixes[Math.floor(i / prefixes.length)]}`,
+  city: cities[i % cities.length],
+  manager: managers[(i + 1) % managers.length],
+  status: statusCycle[i % statusCycle.length],
+}));
+
+const units: Unit[] = [...baseUnits, ...generatedUnits];
 
 const documents: UnitDocument[] = [
   { id: "d1", unitId: "u1", title: "Certidão Negativa (CND Federal)", expiresAt: "2027-03-10" },
