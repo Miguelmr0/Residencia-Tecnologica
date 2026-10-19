@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchSuppliers } from "./suppliers-mock";
+import { queryKeys } from "@/lib/query-keys";
+import { fetchUnits } from "@/mocks/db";
+import { toSuppliers } from "./supplier-details";
 
-// Dados do servidor (mockados) ficam no TanStack Query.
-// A chave de cache é própria, para não mexer no src/lib/query-keys.ts da squad.
+// Usa a MESMA chave de cache do useUnits (queryKeys.units): a lista e o
+// Dashboard compartilham os mesmos dados e se atualizam juntos, como o PDF pede.
+// O "select" só transforma o resultado (Unit -> Supplier) para esta tela.
 export function useSuppliers() {
-  return useQuery({ queryKey: ["suppliers"], queryFn: fetchSuppliers });
+  return useQuery({
+    queryKey: queryKeys.units,
+    queryFn: fetchUnits,
+    select: toSuppliers,
+  });
 }
