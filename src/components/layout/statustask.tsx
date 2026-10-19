@@ -1,6 +1,7 @@
 "use client";
 import { CheckCircle2 } from "lucide-react";
 import { useTasks } from "@/features/tasks/hooks";
+import { startOfWeek, endOfWeek, isWithinInterval, parseISO} from "date-fns";
 
 export default function StatusTarefas() {
   
@@ -11,9 +12,13 @@ export default function StatusTarefas() {
   const concluidas = tasks.filter((t) => t.status === "concluida").length;
   const total = pendentes + andamento + concluidas;
 
-  {/*resolver depois */}
-  const taxaSemanal = 82;
-  const metaSemanal = 80;
+  {/* meta semanal */}
+  const metaSemanal = 50;
+  const hoje = new Date();
+  const semana = { start: startOfWeek(hoje), end: endOfWeek(hoje) };
+  const tarefasDaSemana = tasks.filter((t) => isWithinInterval(parseISO(t.dueDate), semana));
+  const concluidasNaSemana = tarefasDaSemana.filter((t) => t.status === "concluida").length;
+  const taxaSemanal = tarefasDaSemana.length > 0 ? Math.round((concluidasNaSemana / tarefasDaSemana.length) * 100) : 0;
 
   const segmentos = [
     { valor: concluidas, cor: "#2450E8" },
@@ -95,7 +100,7 @@ export default function StatusTarefas() {
 
         <span className="flex items-center gap-2 text-slate-800">
           <CheckCircle2 size={18} className="shrink-0 text-[#2450E8]" />
-          Taxa de conclusão semanal no prazo:
+          Taxa de conclusão de tarefas pendentes nesta semana:
         </span>
 
         <span className="font-bold text-[#2450E8]">
