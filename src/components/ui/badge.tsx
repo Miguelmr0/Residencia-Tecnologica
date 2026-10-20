@@ -5,6 +5,8 @@ const variants = {
   brand: "bg-brand-100 text-brand-700",
   danger: "bg-danger-50 text-danger-700",
   neutral: "bg-slate-200 text-slate-700",
+  warning: "bg-amber-100 text-amber-700",
+  info: "bg-blue-100 text-blue-700",
 } as const;
 
 export type BadgeVariant = keyof typeof variants;
