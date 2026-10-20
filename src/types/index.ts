@@ -25,3 +25,21 @@ export interface Task {
   dueDate: string; 
 }
 //NÃO MEXER//
+export type ContractStatus = "vigente" | "a_renovar" | "em_aditivo" | "vencido";
+
+export interface Contract {
+  id: string;
+  code: string;
+  object: string;
+  supplierName: string;
+  supplierCnpj: string;
+  type: string;
+  monthlyValue: number;
+  annualValue: number;
+  startDate: string;
+  endDate: string;
+  readjustmentIndex: string;
+  nextReadjustmentDate: string;
+  responsible: string;
+  status: ContractStatus;
+}
