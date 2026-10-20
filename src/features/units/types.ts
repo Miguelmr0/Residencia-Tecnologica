@@ -1,14 +1,20 @@
 import type { Unit } from "@/types";
 
-// Supplier (fornecedor) = o Unit oficial da squad + os campos extras que o Figma mostra.
-// Assim o tipo da squad continua intacto, e você não mexe em nada compartilhado.
-export type Supplier = Unit & {
-  uf: string; // estado, ex.: "PE"
-  cnpj: string; // ex.: "04.281.932/0001-44"
-  category: string; // ex.: "TI & Infraestrutura"
+// SupplierDetails = os dados extras do fornecedor que o Figma mostra.
+// Esses dados complementam o tipo Unit oficial da squad,
+// sem precisar alterar o tipo compartilhado.
+export type SupplierDetails = {
+  uf: string; // estado do fornecedor, ex.: "PE"
+  cnpj: string; // CNPJ da empresa, ex.: "04.281.932/0001-44"
+  category: string; // categoria de atuação, ex.: "TI & Infraestrutura"
   contactName: string; // nome do contato principal
   contactEmail: string; // e-mail do contato principal
-  score: number; // de 0 a 100, define o nível de risco
+  score: number; // pontuação de 0 a 100, usada para indicar o nível de risco
   docsOk: number; // quantidade de documentos regulares
-  docsTotal: number; // total de documentos exigidos
+  docsTotal: number; // quantidade total de documentos exigidos
 };
+
+// Supplier (fornecedor) = o Unit oficial da squad + os dados extras.
+// O operador "&" combina os campos dos dois tipos.
+// Assim, o fornecedor mantém os dados oficiais e recebe os campos do Figma.
+export type Supplier = Unit & SupplierDetails;
