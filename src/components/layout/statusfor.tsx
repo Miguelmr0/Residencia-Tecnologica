@@ -4,7 +4,7 @@ import { useUnits } from "@/features/units/hooks";
 
 export default function StatusFornecedores() {
   
-  const { data: units = [], isLoading: loadUnits, isError: errorUnits, refetch: refetchUnits } = useUnits();
+  const { data: units = [] } = useUnits();
   
   const total = units.length;
   const ativos = units.filter((u) => u.status === "ativa").length;
@@ -36,6 +36,8 @@ export default function StatusFornecedores() {
         <svg
           viewBox="0 0 160 160"
           className="h-[176px] w-[176px]"
+          role="img"
+          aria-label={`Gráfico de fornecedores por status: ${ativos} ativos, ${inativos} inativos, ${homologacao} em homologação, de um total de ${total}.`}
         >
           {/* Fundo do círculo */}
           <circle
@@ -109,6 +111,7 @@ export default function StatusFornecedores() {
             <span
               className="h-[11px] w-[11px] rounded-full"
               style={{ backgroundColor: item.cor }}
+              aria-hidden
             />
 
             <span className="text-sm text-slate-800">

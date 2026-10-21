@@ -4,7 +4,7 @@ import { useTasks } from "@/features/tasks/hooks";
 
 export default function StatusTarefas() {
   
-  const { data: tasks = [], isLoading: loadTasks, isError: errorTasks, refetch: refetchTasks } = useTasks();
+  const { data: tasks = [] } = useTasks();
   
   const pendentes = tasks.filter((t) => t.status === "pendente").length;
   const andamento = tasks.filter((t) => t.status === "em_andamento").length;
@@ -43,7 +43,14 @@ export default function StatusTarefas() {
           </span>
         </div>
 
-        <div className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-[#E9EDF5]">
+         <div
+          role="progressbar"
+          aria-label="Progresso geral de resolução das tarefas"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(total > 0 ? (concluidas / total) * 100 : 0)}
+          className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-[#E9EDF5]"
+        >
           {segmentos.map((segmento, indice) => (
             <div
               key={indice}
@@ -94,7 +101,7 @@ export default function StatusTarefas() {
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-lg bg-[#DCE7FF] px-3 py-3 text-sm">
 
         <span className="flex items-center gap-2 text-slate-800">
-          <CheckCircle2 size={18} className="shrink-0 text-[#2450E8]" />
+        <CheckCircle2 size={18} className="shrink-0 text-[#2450E8]" aria-hidden />
           Taxa de conclusão semanal no prazo:
         </span>
 

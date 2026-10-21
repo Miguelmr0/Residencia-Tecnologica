@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import StatusFornecedores from "@/components/layout/statusfor";
 import StatusTarefas from "@/components/layout/statustask";
 import { useUnits } from "@/features/units/hooks";
@@ -26,13 +27,13 @@ export default function DashboardPage() {
   const { data: docs = [], isLoading: loadDocs, isError: errorDocs, refetch: refetchDocs } = useDocuments();
   const { data: tasks = [], isLoading: loadTasks, isError: errorTasks, refetch: refetchTasks } = useTasks();
 
-  {/* se precisar no futuro*/}
-  //const temErro = errorUnits || errorDocs || errorTasks;
-  //const tentarNovamente = () => {
-  //  if (errorUnits) refetchUnits();
-  //  if (errorDocs) refetchDocs();
-  //  if (errorTasks) refetchTasks();
-  //};
+  const temErro = errorUnits || errorDocs || errorTasks;
+  const carregando = loadUnits || loadDocs || loadTasks;
+  const tentarNovamente = () => {
+    refetchUnits();
+    refetchDocs();
+    refetchTasks();
+  };
 
   const fornecedores = units.length;
   const fornecedoresEmHomologacao = units.filter((u) => u.status === "em_homologacao").length;
@@ -45,7 +46,7 @@ export default function DashboardPage() {
   const diasPUrgente = 3;
   const tarefas = tasks.length;
   const tarefasPendentes = tasks.filter((t) => t.status === "pendente").length;
-  const tarefasUrgentes = tasks.filter((t) => t.status == "pendente" && differenceInCalendarDays(parseISO(t.dueDate), new Date()) <= diasPUrgente).length;
+  const tarefasUrgentes = tasks.filter((t) => t.status === "pendente" && differenceInCalendarDays(parseISO(t.dueDate), new Date()) <= diasPUrgente).length;
 
   return (
     <div className="space-y-6">
@@ -71,20 +72,47 @@ export default function DashboardPage() {
 
         <div className="flex flex-col gap-2 sm:flex-row">
 
-          <Button className="w-full sm:w-[168px] h-[40px] bg-[#FFFFFF] border border-[#D1D5DB] text-black hover:bg-[#D5D5D5]">
+          <Button variant="outline" className="w-full sm:w-[168px] h-10">
             <Download aria-hidden />
             Exportar Relatório
           </Button>
 
-          <Button className="w-full sm:w-[168px] h-[40px] bg-[#1D4ED8] text-white hover:bg-[#0E3BBA]">
+          <Button variant="default" className="w-full sm:w-[168px] h-10">
             <Plus aria-hidden />
             Novo Fornecedor
           </Button>
 
         </div>
 
-      </div>
+            </div>
 
+      {temErro ? (
+        <div role="alert" className="flex flex-col items-start gap-3 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+          <p className="font-semibold">Não foi possível carregar os dados do dashboard.</p>
+          <Button onClick={tentarNovamente}>Tentar novamente</Button>
+        </div>
+      ) : carregando ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-[158px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="mt-4 h-9 w-16" />
+                <Skeleton className="mt-6 h-4 w-32" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="mt-8 h-44 w-full" />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
       {/* segunda coluna */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -222,7 +250,7 @@ export default function DashboardPage() {
                 Homologação media: 4.2 dias
               </p>
 
-              <Button className="h-[40px] shrink-0 bg-transparent text-blue-700 hover:bg-transparent">
+              <Button variant="link" className="h-auto p-0">
                 Ver detalhes -&gt;
               </Button>
 
@@ -264,7 +292,9 @@ export default function DashboardPage() {
 
           </div>
         </div>
-      </div>
+            </div>
+        </>
+      )}
 
     </div>
   );
