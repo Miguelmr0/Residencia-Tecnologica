@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatusFornecedores from "@/components/layout/statusfor";
@@ -46,8 +47,37 @@ export default function DashboardPage() {
   const diasPUrgente = 3;
   const tarefas = tasks.length;
   const tarefasPendentes = tasks.filter((t) => t.status === "pendente").length;
-  const tarefasUrgentes = tasks.filter((t) => t.status === "pendente" && differenceInCalendarDays(parseISO(t.dueDate), new Date()) <= diasPUrgente).length;
+  const tarefasUrgentes = tasks.filter((t) => t.status === "pendente" && differenceInCalendarDays(parseISO(t.dueDate), 
+  new Date()) <= diasPUrgente).length;
 
+    const handleExportarRelatorio = () => {
+    const linhas: string[] = [];
+    linhas.push("Relatorio VendorHub");
+    linhas.push(`Gerado em;${new Date().toLocaleString("pt-BR")}`);
+    linhas.push("");
+    linhas.push("Indicador;Valor");
+    linhas.push(`Fornecedores;${fornecedores}`);
+    linhas.push(`Fornecedores ativos;${fornecedoresAtivos}`);
+    linhas.push(`Documentos a vencer;${documentosAVencer}`);
+    linhas.push(`Tarefas pendentes;${tarefasPendentes}`);
+    linhas.push("");
+    linhas.push("Fornecedor;Cidade;Responsavel;Status");
+    units.forEach((u) => {
+      linhas.push(`${u.name};${u.city};${u.manager};${u.status}`);
+    });
+
+    const csv = linhas.join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `relatorio-vendorhub-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+    
   return (
     <div className="space-y-6">
 
@@ -72,7 +102,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col gap-2 sm:flex-row">
 
-          <Button variant="outline" className="w-full sm:w-[168px] h-10">
+          <Button variant="outline" className="w-full sm:w-[168px] h-10" onClick={handleExportarRelatorio}>
             <Download aria-hidden />
             Exportar Relatório
           </Button>
@@ -250,9 +280,9 @@ export default function DashboardPage() {
                 Homologação media: 4.2 dias
               </p>
 
-              <Button variant="link" className="h-auto p-0">
-                Ver detalhes -&gt;
-              </Button>
+            <Link href="/unidades" className="text-sm font-medium text-blue-700 hover:underline">
+                    Ver detalhes -&gt;
+             </Link>
 
             </div>
 
@@ -284,9 +314,9 @@ export default function DashboardPage() {
                 Tempo médio de atendimento:1.8 dias
                </p>
 
-              <Button className="h-[40px] shrink-0 bg-transparent text-blue-700 hover:bg-transparent">
-                Gerenciar tarefas -&gt;
-              </Button>
+              <Link href="/tarefas" className="text-sm font-medium text-blue-700 hover:underline">
+                    Gerenciar tarefas -&gt;
+             </Link>
 
             </div>
 
