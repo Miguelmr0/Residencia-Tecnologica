@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatusFornecedores from "@/components/layout/statusfor";
@@ -8,14 +10,16 @@ import StatusTarefas from "@/components/layout/statustask";
 import { useUnits } from "@/features/units/hooks";
 import { useDocuments } from "@/features/documents/hooks";
 import { useTasks } from "@/features/tasks/hooks";
-import { getDocumentStatus } from "@/lib/document-status";
-import { differenceInCalendarDays, parseISO } from "date-fns";
+import { EXPIRING_THRESHOLD_DAYS, getDocumentStatus, type FiltroDoc } from "@/lib/document-status";
+import { differenceInCalendarDays, parseISO, format } from "date-fns";
 import { 
   Download, 
   Plus,
   Building2,
   BadgeCheck,
   Clock,
+  Eye,
+  CalendarDays,
   ListChecks,
   TrendingUp,
   AlertTriangle,
@@ -43,12 +47,62 @@ export default function DashboardPage() {
   
   const documentosAVencer = docs.filter( (d) => getDocumentStatus(d.expiresAt) === "proximo_vencimento").length;
   const documentosExpirado = docs.filter( (d) => getDocumentStatus(d.expiresAt) === "expirado").length;
+  const docAlertas = documentosAVencer + documentosExpirado;
+
+  {/* usado na quarta coluna cartão 1 */}
+  const [filtroDoc, setFiltroDoc] = useState<FiltroDoc>("todos");
+  const nomeFornecedor = (unitId: string) => units.find((u) => u.id === unitId)?.name;
+
+  const docsFiltrados = docs.filter((d) => {
+      const status = getDocumentStatus(d.expiresAt);
+      if (filtroDoc === "expirados") return status === "expirado";
+      if (filtroDoc === "proximos") return status === "proximo_vencimento";
+      return status === "expirado" || status === "proximo_vencimento";
+    }).sort((a, b) => a.expiresAt.localeCompare(b.expiresAt)); //ordenação das datas
+  
+  const LIMITE_DOCS = 5;
+  const docsVisiveis = docsFiltrados.slice(0, LIMITE_DOCS);
+
+  const abasDocs: { id: FiltroDoc; nome: string; qtd: number }[] = [
+    { id: "todos", nome: "Todos", qtd: docAlertas },
+    { id: "expirados", nome: "Expirados", qtd: documentosExpirado },
+    { id: "proximos", nome: "Próximos", qtd: documentosAVencer },
+  ];
+  
+  const statusDoc: Record<"expirado" | "proximo", { variant: BadgeVariant; texto: string }> = {
+    expirado: { variant: "danger", texto: "Expirado" },
+    proximo: { variant: "warning", texto: "Próximo do vencimento" },
+  };
+
+  {/*------------------------------------------------------------*/}
   
   const diasPUrgente = 3;
   const tarefas = tasks.length;
   const tarefasPendentes = tasks.filter((t) => t.status === "pendente").length;
   const tarefasUrgentes = tasks.filter((t) => t.status === "pendente" && differenceInCalendarDays(parseISO(t.dueDate), 
   new Date()) <= diasPUrgente).length;
+
+  {/* usado na quarta coluna cartão 2 */}
+  const tarefasEmAndamento = tasks.filter((t) => t.status === "em_andamento").length;
+  const tarefasAbertas = tarefasPendentes + tarefasEmAndamento;
+
+  const tarefasFiltradas = tasks.filter((t) => t.status === "pendente" || t.status === "em_andamento")
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate)); //ordenação das datas
+
+  const LIMITE_TAREFAS = 3;
+  const tarefasVisiveis = tarefasFiltradas.slice(0, LIMITE_TAREFAS);
+
+  const prioridadeTarefa = (dueDate: string): { variant: BadgeVariant; texto: string } => {
+    const dias = differenceInCalendarDays(parseISO(dueDate), new Date());
+    if (dias <= diasPUrgente) return { variant: "danger", texto: "ALTA" };
+    if (dias <= EXPIRING_THRESHOLD_DAYS) return { variant: "info", texto: "MÉDIA" };
+    return { variant: "neutral", texto: "NORMAL" };
+  };
+
+
+  {/*------------------------------------------------------------*/}
+  
+
 
     const handleExportarRelatorio = () => {
     const linhas: string[] = [];
@@ -90,9 +144,7 @@ export default function DashboardPage() {
               Olá, Mariana
             </h1>
 
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-              ● Atualizado hoje
-            </span>
+            <Badge variant="info">● Atualizado hoje</Badge>
           </div>
 
           <p className="text-sm text-gray-600">
@@ -132,6 +184,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[0, 1].map((i) => (
               <div key={i} className="min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
@@ -139,6 +192,22 @@ export default function DashboardPage() {
                 <Skeleton className="mt-8 h-44 w-full" />
               </div>
             ))}
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex w-full flex-col md:col-span-2 h-[460px] sm:min-h-[358px] rounded-lg border border-[#F3F4F6] bg-[#FFFFFF] p-5 shadow-sm">
+              <Skeleton className="h-6 w-64" />
+              <Skeleton className="mt-3 h-4 w-80" />
+              <Skeleton className="mt-8 h-64 w-full" />
+            </div>
+
+            <div className="w-full  h-[460px] sm:min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+              <Skeleton className="h-6 w-64" />
+              <Skeleton className="mt-3 h-4 w-80" />
+              <Skeleton className="mt-4 h-75 w-full" />
+              <Skeleton className="mt-3 h-10 w-full" />
+            </div>
+            
           </div>
         </>
       ) : (
@@ -163,10 +232,10 @@ export default function DashboardPage() {
           </h2>
           
           <div className="mt-5 flex items-center gap-2 text-xs text-gray-600">
-            <span className="flex items-center gap-1 rounded-full bg-[#E5EEFF] px-2 py-1 text-[#0037B0]">
+            <Badge variant="brand" className="gap-1">
               <TrendingUp size={12} />
               {fornecedoresEmHomologacao}
-            </span>
+            </Badge>
             cadastrados recentemente
           </div>
 
@@ -214,10 +283,10 @@ export default function DashboardPage() {
           </h2>
           
           <div className="mt-5 flex items-center gap-2 text-xs text-gray-600">
-            <span className="flex items-center gap-1 rounded-full bg-[#E5EEFF] px-2 py-1 text-[#0037B0]">
+            <Badge variant="brand" className="gap-1 whitespace-nowrap">
               <AlertTriangle size={12} />
-              {documentosExpirado} novos
-            </span>
+              {documentosExpirado} Expirados
+            </Badge>
             desde a última semana
           </div>
 
@@ -240,10 +309,10 @@ export default function DashboardPage() {
           </h2>
           
           <div className="mt-5 flex items-center gap-2 text-xs text-gray-600">
-            <span className="flex items-center gap-1 rounded-full bg-[#FFDAD6] px-2 py-1 text-[#93000A]">
+            <Badge variant="danger" className="gap-1 whitespace-nowrap">
               <AlertTriangle size={12} />
               {tarefasUrgentes} urgentes
-            </span>
+            </Badge>
             com prazo para entrega
           </div>
 
@@ -262,9 +331,9 @@ export default function DashboardPage() {
                 Status dos fornecedores
               </p>
 
-              <span className="ml-auto rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+              <Badge variant="info" className="ml-auto">
                 ● Total: {fornecedores}
-              </span>
+              </Badge>
 
             </div>
             <p className="text-sm text-gray-600">
@@ -297,9 +366,9 @@ export default function DashboardPage() {
                 Status das tarefas
               </p>
 
-              <span className="ml-auto rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+              <Badge variant="info" className="ml-auto">
                 ● Total: {tarefas} tarefas
-              </span>
+              </Badge>
 
             </div>
             <p className="text-sm text-gray-600">
@@ -322,8 +391,234 @@ export default function DashboardPage() {
 
           </div>
         </div>
+      </div>
+        
+         {/*quarta coluna*/}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        
+        
+        {/* Cartão 1 */}
+        <div className="flex w-full flex-col md:col-span-2 h-[460px] sm:min-h-[358px] rounded-lg border border-[#F3F4F6] bg-[#FFFFFF] p-5 shadow-sm">
+
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-bold">
+                  Documentos que exigem atenção
+                </h1>
+
+                <Badge variant="danger">
+                  {docAlertas} alertas
+                </Badge>
+              </div>
+
+              <p className="mt-1 text-sm text-[#4A5565]">
+                Certidões e licenças vencidas ou expirando nos próximos 30 dias
+              </p>
             </div>
-        </>
+
+            <div className="inline-flex shrink-0 rounded-lg bg-[#EFF4FF] p-1">
+              {abasDocs.map((aba) => {
+                const ativa = filtroDoc === aba.id;
+
+                return (
+                  <Button
+                    key={aba.id}
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setFiltroDoc(aba.id)}
+                    aria-pressed={ativa}
+                    className={`h-auto rounded-md px-3 py-1.5 text-center text-xs font-semibold shadow-none transition-colors ${
+                      ativa ? "bg-[#FFFFFF] text-[#0037B0] shadow-sm hover:bg-[#FFFFFF]" : "bg-transparent text-[#4A5565] hover:bg-[#FFFFFF]/60 hover:text-[#101828]"
+                    }`}
+                  >
+                    <span className="flex flex-col items-center gap-0">
+                      <span>{aba.nome}</span>
+                      <span>({aba.qtd})</span>
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+
+          </div>
+
+          <div className="mt-5 w-full overflow-x-auto rounded-lg">
+            <table className="w-full min-w-[650px] border-collapse text-left">
+              <thead className="bg-[#EFF4FF]">
+                <tr>
+                  <th className="px-4 py-3 text-[11px] font-semibold text-[#4A5565]">
+                    DOCUMENTO
+                  </th>
+                  <th className="px-4 py-3 text-[11px] font-semibold text-[#4A5565]">
+                    FORNECEDOR
+                  </th>
+                  <th className="px-4 py-3 text-[11px] font-semibold text-[#4A5565]">
+                    VENCIMENTO
+                  </th>
+                  <th className="px-4 py-3 text-[11px] font-semibold text-[#4A5565]">
+                    STATUS
+                  </th>
+                  <th className="px-4 py-3 text-[11px] font-semibold text-[#4A5565]">
+                    AÇÕES
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {docsVisiveis.map((d) => {
+                  const expirado = getDocumentStatus(d.expiresAt) === "expirado";
+                  const status = statusDoc[expirado ? "expirado" : "proximo"];
+
+                  return (
+                    <tr key={d.id} className="border-b border-[#F3F4F6] last:border-0 overflow-y-auto">
+
+                      {/* Documento */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-semibold text-[#000000]">
+                            {d.title}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      {/* Fornecedor */}
+                      <td className="px-4 py-3 text-sm text-[#434655]">
+                        {nomeFornecedor(d.unitId)}
+                      </td>
+
+                      {/* Data */}
+                      <td
+                        className={`px-4 py-3 text-sm font-medium ${
+                          expirado ? "text-[#BA1A1A]" : "text-slate-900"
+                        }`}
+                      >
+                        {format(parseISO(d.expiresAt), "dd/MM/yyyy")}
+                      </td>
+                        
+                        {/* Status */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <Badge variant={status.variant} className="gap-1.5">
+                          ● {status.texto}
+                        </Badge>
+                      </td>
+
+                          {/* botão ver doc */}
+                      <td className="px-4 py-3">
+                        <Button variant="outline" size="sm" className="gap-1.5">
+                          Ver
+                          <Eye size={14} aria-hidden />
+                        </Button>
+                      </td>
+
+                    </tr>
+                  );
+                })}
+                
+                {docsVisiveis.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-600">
+                      Nenhum documento nesta categoria.
+                    </td>
+                  </tr>
+                )}
+
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-auto flex items-center justify-between gap-3">
+
+              <p className="text-sm text-[#4A5565]">
+                Exibindo {Math.min(docAlertas, 5)} de {docAlertas} documentos
+              </p>
+
+              <Link href="/documentos" className="text-sm font-medium text-blue-700 hover:underline">
+                Ver todos os {docAlertas} documentos -&gt;
+              </Link>
+
+          </div>
+
+        </div>
+        
+        {/* Cartão 2 */}
+        <div className="flex w-full flex-col h-[460px] sm:min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-[21px] font-bold">
+                Tarefas pendentes
+              </p>
+
+              <span className="text-sm text-gray-600">
+                Ações de regularização atribuídas a você
+              </span>
+            </div>
+            
+            <Link href="/tarefas" className="text-sm font-medium text-blue-700 hover:underline">
+              + Nova tarefa -&gt;
+            </Link>
+
+          </div>
+          
+          <ul className="mt-4 flex flex-col gap-3 overflow-y-auto">
+            {tarefasVisiveis.map((t) => {
+              const prioridade = prioridadeTarefa(t.dueDate);
+
+              return (
+                <li key={t.id} className="flex items-start gap-3 rounded-lg border border-gray-100 p-3">
+
+                  <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300" />
+
+                  <div className="min-w-0 flex-1">
+
+                    {/* título + prioridade */}
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-black">
+                        {t.title}
+                      </p>
+                      <Badge variant={prioridade.variant} className="shrink-0">
+                        {prioridade.texto}
+                      </Badge>
+                    </div>
+
+                    {/* fornecedor */}
+                    <p className="truncate text-sm text-gray-600">
+                      {nomeFornecedor(t.unitId)}
+                    </p>
+
+                    {/* data / status */}
+                    <div className="mt-1 flex items-center gap-2 text-xs text-gray-600">
+                      <CalendarDays size={12} aria-hidden />
+                      {format(parseISO(t.dueDate), "dd/MM/yyyy")}
+                      <span className={t.status === "em_andamento" ? "font-medium text-blue-700" : "font-medium"}>
+                        • {t.status === "em_andamento" ? "Em andamento" : "Pendente"}
+                      </span>
+                    </div>
+
+                  </div>
+
+                </li>
+                )}
+              )}
+
+              {tarefasVisiveis.length === 0 && (
+                <li className="py-6 text-center text-sm text-gray-600">
+                  Nenhuma tarefa pendente.
+                </li>
+            )}
+  
+          </ul>
+                
+            <Link href="/tarefas" 
+              className="mt-auto flex h-10 items-center justify-center gap-2 rounded-lg bg-[#E5EEFF] text-sm font-semibold text-[#0037B0] hover:bg-[#DCE7FF]">
+              Ver todas as {tarefasAbertas} tarefas -&gt;
+            </Link>
+
+        </div>
+
+      </div>
+      </>
       )}
 
     </div>
