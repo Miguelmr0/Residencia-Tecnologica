@@ -71,12 +71,15 @@ export function getInitials(name: string): string {
 export function filterSuppliers(suppliers: Supplier[], filters: SupplierFilters): Supplier[] {
   const term = filters.search.trim().toLowerCase();
   const digits = term.replace(/\D/g, ""); // permite buscar CNPJ sem pontuação
+  // Só procura no CNPJ se o texto tiver apenas números e pontuação
+  const looksLikeCnpj = /^[\d.\s/-]+$/.test(term);
 
   return suppliers.filter((s) => {
+
     const matchSearch =
       term === "" ||
       s.name.toLowerCase().includes(term) ||
-      (digits !== "" && s.cnpj.replace(/\D/g, "").includes(digits));
+      (looksLikeCnpj && digits !== "" && s.cnpj.replace(/\D/g, "").includes(digits));
     const matchStatus = filters.status === "todos" || s.status === filters.status;
     const matchCategory = filters.category === "todos" || s.category === filters.category;
     const matchRisk = filters.risk === "todos" || getRiskLevel(s.score) === filters.risk;
