@@ -21,7 +21,7 @@ let tasks: Task[] = [
   { id: "t4", unitId: "u3", title: "Encerrar pendências", status: "pendente", dueDate: "2026-11-05" },
 ];
 
-const contracts: Contract[] = [
+let contracts: Contract[] = [
   { id: "c1", code: "CTR-2024-0104", object: "Prestação de Serviços de Suporte Cloud & Dev", supplierName: "Alpha Tecnologia Ltda", supplierCnpj: "18.234.901/0001-44", type: "Serviço", monthlyValue: 45000, annualValue: 540000, startDate: "2024-09-26", endDate: "2026-09-26", readjustmentIndex: "IPCA", nextReadjustmentDate: "2026-09-26", responsible: "Mariana Silva", status: "a_renovar" },
   { id: "c2", code: "CTR-2023-0078", object: "Serviços Integrados de Facilities e Manutenção Predial", supplierName: "Zeta Engenharia e Reformas", supplierCnpj: "04.551.789/0001-12", type: "Serviço", monthlyValue: 62000, annualValue: 744000, startDate: "2023-10-08", endDate: "2026-10-08", readjustmentIndex: "IGP-M", nextReadjustmentDate: "2026-10-08", responsible: "Carlos Souza", status: "a_renovar" },
   { id: "c3", code: "CTR-2022-0033", object: "Acordo de Nível de Serviço (SLA) de Segurança Patrimonial", supplierName: "Alfa Segurança Patrimonial", supplierCnpj: "31.902.115/0001-89", type: "SLA", monthlyValue: 28500, annualValue: 342000, startDate: "2022-09-09", endDate: "2026-09-09", readjustmentIndex: "IPCA", nextReadjustmentDate: "2026-09-09", responsible: "Carlos Souza", status: "vencido" },
@@ -42,6 +42,13 @@ export async function fetchDocuments(): Promise<UnitDocument[]> {
 export async function fetchContracts(): Promise<Contract[]> {
   await delay();
   return contracts;
+}
+
+export async function createContract(data: Omit<Contract, "id">): Promise<Contract> {
+  await delay(300);
+  const newContract: Contract = { ...data, id: `c${contracts.length + 1}` };
+  contracts = [...contracts, newContract];
+  return newContract;
 }
 
 export async function fetchTasks(): Promise<Task[]> {
