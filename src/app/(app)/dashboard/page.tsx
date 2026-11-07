@@ -10,6 +10,8 @@ import StatusTarefas from "@/components/layout/statustask";
 import { useUnits } from "@/features/units/hooks";
 import { useDocuments } from "@/features/documents/hooks";
 import { useTasks } from "@/features/tasks/hooks";
+import { useContracts } from "@/features/contracts/hooks";
+import { useHistoric } from "@/features/historic/hooks";
 import { EXPIRING_THRESHOLD_DAYS, getDocumentStatus, type FiltroDoc } from "@/lib/document-status";
 import { differenceInCalendarDays, parseISO, format } from "date-fns";
 import { 
@@ -23,6 +25,10 @@ import {
   ListChecks,
   TrendingUp,
   AlertTriangle,
+  FileText,
+  RefreshCw,
+  Check,
+  ArrowRight
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -31,13 +37,17 @@ export default function DashboardPage() {
   const { data: units = [], isLoading: loadUnits, isError: errorUnits, refetch: refetchUnits } = useUnits();
   const { data: docs = [], isLoading: loadDocs, isError: errorDocs, refetch: refetchDocs } = useDocuments();
   const { data: tasks = [], isLoading: loadTasks, isError: errorTasks, refetch: refetchTasks } = useTasks();
+  const { data: contracts = [], isLoading: loadCon, isError: errorCon, refetch: refetchCon } = useContracts();
+  const { data: historico = [], isLoading: loadHist, isError: errorHist, refetch: refetchHist } = useHistoric();
 
-  const temErro = errorUnits || errorDocs || errorTasks;
-  const carregando = loadUnits || loadDocs || loadTasks;
+  const temErro = errorUnits || errorDocs || errorTasks || errorCon || errorHist;
+  const carregando = loadUnits || loadDocs || loadTasks || loadCon || loadHist;
   const tentarNovamente = () => {
     refetchUnits();
     refetchDocs();
     refetchTasks();
+    refetchCon();
+    refetchHist();
   };
 
   const fornecedores = units.length;
@@ -99,15 +109,68 @@ export default function DashboardPage() {
     return { variant: "neutral", texto: "NORMAL" };
   };
 
+  {/* usado na quinta coluna (contratos) */}
+  const contratosVigentes = contracts.filter((c) => c.status === "vigente").length;
+  const proximos60Dias = contracts.filter((c) => {
+    const dias = differenceInCalendarDays(parseISO(c.endDate), new Date());
+    return dias >= 0 && dias <= 60;
+  }).length;
+  const pendenciasVencidos = contracts.filter((c) => c.status === "vencido").length;
+
+  const LIMITE_CONTRATOS = 3;
+  const contratosAtencao = [...contracts]
+    .sort((a, b) => a.endDate.localeCompare(b.endDate))
+    .slice(0, LIMITE_CONTRATOS);
+
+  const situacaoContrato = (c: (typeof contracts)[number]): { variant: BadgeVariant; texto: string } => {
+    if (c.status === "a_renovar") return { variant: "warning", texto: "A renovar" };
+
+    const dias = differenceInCalendarDays(parseISO(c.endDate), new Date());
+    const quantidade = Math.abs(dias);
+    const unidade = quantidade === 1 ? "dia" : "dias";
+
+    if (dias < 0) return { variant: "danger", texto: `Vencido há ${quantidade} ${unidade}` };
+    return { variant: "info", texto: `Vence em ${quantidade} ${unidade}` };
+  };
+
+  const valorMensal = (valor: number) =>
+    `${valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}/mês`;
+
+  const valorSobGestao = contracts.reduce((total, c) => total + c.annualValue, 0);
+
+  {/*------------------------------------------------------------*/}
+
+  {/* usado na quinta coluna (atividade recente) */}
+  const LIMITE_ATIVIDADES = 7;
+
+  const atividadesRecentes = [...historico].sort((a, b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime())
+    .slice(0, LIMITE_ATIVIDADES);
+
+  const iconeAtividade = (tipo: string) => {
+    if (tipo === "Tarefa") return <Check size={14} />;
+    if (tipo === "Cadastro") return <Building2 size={14} />;
+    if (tipo === "Alerta" || tipo === "Bloqueio") return <AlertTriangle size={14} />;
+    return <FileText size={14} />;
+  };
+
+  const quandoAtividade = (timestamp: string) => {
+    const data = parseISO(timestamp);
+    const dias = differenceInCalendarDays(new Date(), data);
+    const hora = format(data, "HH:mm");
+
+    if (dias === 0) return `Hoje, ${hora}`;
+    if (dias === 1) return `Ontem, ${hora}`;
+    return `${format(data, "dd/MM/yyyy")}, ${hora}`;
+  };
 
   {/*------------------------------------------------------------*/}
   
 
-
+    {/* logica para exportar o relatorio em csv */}
     const handleExportarRelatorio = () => {
     const linhas: string[] = [];
     linhas.push("Relatorio VendorHub");
-    linhas.push(`Gerado em;${new Date().toLocaleString("pt-BR")}`);
+    linhas.push(`Gerado em: ${new Date().toLocaleString("pt-BR")}`);
     linhas.push("");
     linhas.push("Indicador;Valor");
     linhas.push(`Fornecedores;${fornecedores}`);
@@ -166,7 +229,7 @@ export default function DashboardPage() {
 
         </div>
 
-            </div>
+      </div>
 
       {temErro ? (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
@@ -222,9 +285,9 @@ export default function DashboardPage() {
               FORNECEDORES
             </p>
             
-            <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg bg-[#E5EEFF] text-[#0037B0]">
+            <Badge variant="info" className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg">
               <Building2 size={21} />
-            </div>
+            </Badge>
           </div>
           
           <h2 className="mt-0 text-3xl font-bold text-black">
@@ -248,9 +311,9 @@ export default function DashboardPage() {
               FORNECEDORES ATIVOS
             </p>
             
-            <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg bg-[#E5EEFF] text-[#0037B0]">
+            <Badge variant="info" className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg">
               <BadgeCheck size={21} />
-            </div>
+            </Badge>
           </div>
           
           <h2 className="mt-0 text-3xl font-bold text-black">
@@ -273,9 +336,9 @@ export default function DashboardPage() {
               DOCUMENTOS A VENCER
             </p>
             
-            <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg bg-[#E5EEFF] text-[#0037B0]">
+            <Badge variant="info" className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg">
               <Clock size={21} />
-            </div>
+            </Badge>
           </div>
           
           <h2 className="mt-0 text-3xl font-bold text-black">
@@ -299,9 +362,9 @@ export default function DashboardPage() {
               TAREFAS PENDENTES
             </p>
             
-            <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg bg-[#E5EEFF] text-[#0037B0]">
+            <Badge variant="info" className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg">
               <ListChecks size={21} />
-            </div>
+            </Badge>
           </div>
           
           <h2 className="mt-0 text-3xl font-bold text-black">
@@ -393,7 +456,7 @@ export default function DashboardPage() {
         </div>
       </div>
         
-         {/*quarta coluna*/}
+      {/*quarta coluna*/}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         
@@ -413,7 +476,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="mt-1 text-sm text-[#4A5565]">
-                Certidões e licenças vencidas ou expirando nos próximos 30 dias
+                Certidões e licenças vencidas ou expirando nos próximos 15 dias
               </p>
             </div>
 
@@ -534,7 +597,7 @@ export default function DashboardPage() {
               </p>
 
               <Link href="/documentos" className="text-sm font-medium text-blue-700 hover:underline">
-                Ver todos os {docAlertas} documentos -&gt;
+                Ver todos os documentos -&gt;
               </Link>
 
           </div>
@@ -618,9 +681,198 @@ export default function DashboardPage() {
         </div>
 
       </div>
+      
+      {/*quinta coluna*/}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        {/* cartão 1 */}
+        <div className="w-full h-auto rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-3 text-[21px] font-bold">
+                Contratos 
+              </div>
+              <p className="text-sm text-gray-600">
+                Gestão de vigência e riscos contratuais
+              </p>
+            </div>
+
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* cartão 1 */}
+            <div className="w-full h-[130px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+
+              <h2 className="mt-0 text-3xl font-bold text-black">
+                  {contratosVigentes}
+              </h2>
+                
+              <div className="mt-9 flex items-center gap-2 text-[12px] text-gray-600">
+                <span className="flex items-center gap-1 rounded-full px-2 py-1 text-blue-700">
+                  ● 
+                </span>
+                Contratos vingentes
+              </div>
+              
+            </div>
+
+            {/* cartão 2 */}
+            <div className="w-full h-[130px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+
+              <h2 className="mt-0 text-3xl font-bold text-black">
+                  {proximos60Dias}
+              </h2>
+                
+              <div className="mt-9 flex items-center gap-2 text-[12px] text-gray-600">
+                <span className="flex items-center gap-1 rounded-full px-2 py-1 text-blue-700">
+                  ● 
+                </span>
+                Renovações nos proximos 60 dias
+              </div>
+              
+            </div>
+
+            {/* cartão 3 */}
+            <div className="w-full h-[130px] rounded-lg border border-red-100 bg-red-100 p-5 shadow-sm">
+
+              <h2 className="mt-0 text-3xl font-bold text-black">
+                  {pendenciasVencidos}
+              </h2>
+                
+              <div className="mt-9 flex items-center gap-2 text-[12px] text-red-600">
+                <span className="flex items-center gap-1 rounded-full px-2 py-1 text-red-700">
+                  ● 
+                </span>
+                Pendencias/Vencidos
+              </div>
+              
+            </div>
+
+          </div>
+
+          {/* lista de contratos com atenção imediata */}
+          <h3 className="mt-6 text-[16px] font-bold">
+            Contratos que requer atenção
+          </h3>
+
+          <ul className="mt-3 flex flex-col gap-3">
+            {contratosAtencao.map((c) => {
+              const situacao = situacaoContrato(c);
+
+              return (
+                <li key={c.id} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-[#F8FAFF] p-3">
+
+                  <Badge variant={situacao.variant} className="flex h-[36px] w-[36px] shrink-0 items-center justify-center rounded-lg">
+                    {situacao.variant === "danger" ? (
+                      <AlertTriangle size={16} />
+                    ) : situacao.variant === "warning" ? (
+                      <RefreshCw size={16} />
+                    ) : (
+                      <FileText size={16} />
+                    )}
+                  </Badge>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-black">{c.object}</p>
+                    <p className="truncate text-sm text-gray-600">
+                      {c.supplierName} • {valorMensal(c.monthlyValue)}
+                    </p>
+                  </div>
+
+                  <Badge variant={situacao.variant} className="shrink-0 whitespace-nowrap">
+                    {situacao.texto}
+                  </Badge>
+
+                </li>
+              );
+            })}
+
+            {contratosAtencao.length === 0 && (
+                <li className="py-6 text-center text-sm text-gray-600">
+                  Nenhum contrato requer atenção.
+                </li>
+              )}
+            </ul>
+
+          <div className="mt-18 flex items-center justify-between gap-3">
+
+            <p className="text-sm text-gray-600">
+              valor total sob gestão: R$ {(valorSobGestao / 1_000_000).toFixed(1)} Mi/ano
+            </p>
+
+            <Link href="/contratos" className="text-sm font-medium text-blue-700 hover:underline">
+                  Gerenciar todos os contratos -&gt;
+            </Link>
+
+          </div>
+        </div>
+        
+        {/* cartão 2: atividade recente */}
+        <div className="flex w-full h-auto sm:min-h-[358px] flex-col rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-[21px] font-bold">
+                Atividade recente
+              </p>
+
+              <Badge variant="info" className="flex ml-auto h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg">
+                <Clock size={21} />
+              </Badge>
+
+            </div>
+            <p className="text-sm text-gray-600">
+              Trilha de auditoria das ações operacionais
+            </p>
+          </div>
+
+          <ul className="mb-6 mt-6 flex flex-col">
+            {atividadesRecentes.map((log) => {
+              const critico = log.level === "critico";
+
+              return (
+                <li key={log.id} className="relative flex gap-3 pb-6 last:pb-0">
+
+                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white ${
+                      critico ? "bg-red-600" : "bg-blue-700"}`}>
+                    {iconeAtividade(log.type)}
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-[#101828]">
+                      <strong className="font-semibold">{log.actorName}</strong> registrou{" "}
+                      <span className={`font-semibold ${critico ? "text-red-700" : "text-blue-700"}`}>
+                        {log.action}
+                      </span>{" "}
+                      para {log.supplierName}.
+                    </p>
+
+                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-600">
+                      <Clock size={12} aria-hidden />
+                      {quandoAtividade(log.timestamp)}
+                    </p>
+                  </div>
+
+                </li>
+              );
+            })}
+
+            {atividadesRecentes.length === 0 && (
+              <li className="py-6 text-center text-sm text-gray-600">
+                Nenhuma atividade registrada.
+              </li>
+            )}
+          </ul>
+
+          <div className="mt-auto flex items-center justify-between gap-3 border-gray-100 pt-4">
+
+            <Link href="/historico" className="flex ml-auto items-center gap-2 text-sm font-medium text-blue-700 hover:underline">
+              Ver histórico completo de auditoria
+              <ArrowRight size={16} aria-hidden />
+            </Link>
+          </div>
+        </div>
+      </div>
       </>
       )}
-
     </div>
   );
 }

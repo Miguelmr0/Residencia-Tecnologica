@@ -3,4 +3,5 @@ export const queryKeys = {
   documents: ["documents"] as const,
   tasks: ["tasks"] as const,
   contracts: ["contracts"] as const,
+  historico: ["historico"] as const
 };

@@ -43,3 +43,22 @@ export interface Contract {
   responsible: string;
   status: ContractStatus;
 }
+
+export type HistoricoLevel = "sucesso" | "informativo" | "alerta" | "critico";
+export type HistoricoOrigin = "usuario" | "robo" | "sistema";
+
+export interface Historico {
+  id: string;
+  timestamp: string;
+  actorName: string;
+  actorRole: string;
+  origin: HistoricoOrigin;
+  supplierName: string;
+  supplierCnpj: string;
+  type: string;
+  action: string;
+  description: string;
+  ipAddress: string;
+  detail: string;
+  level: HistoricoLevel;
+}
