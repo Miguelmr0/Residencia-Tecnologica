@@ -270,7 +270,16 @@ export default function DashboardPage() {
               <Skeleton className="mt-4 h-75 w-full" />
               <Skeleton className="mt-3 h-10 w-full" />
             </div>
-            
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="min-h-[620px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="mt-8 h-100 w-full" />
+          </div>
+
+          ))}
           </div>
         </>
       ) : (
@@ -685,7 +694,7 @@ export default function DashboardPage() {
       {/*quinta coluna*/}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        {/* cartão 1 */}
+        {/* cartão 1: contratos */}
         <div className="w-full h-auto rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-3 text-[21px] font-bold">
@@ -748,7 +757,6 @@ export default function DashboardPage() {
 
           </div>
 
-          {/* lista de contratos com atenção imediata */}
           <h3 className="mt-6 text-[16px] font-bold">
             Contratos que requer atenção
           </h3>
@@ -806,7 +814,7 @@ export default function DashboardPage() {
         </div>
         
         {/* cartão 2: atividade recente */}
-        <div className="flex w-full h-auto sm:min-h-[358px] flex-col rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="flex w-full h-auto flex-col rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
 
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-3">

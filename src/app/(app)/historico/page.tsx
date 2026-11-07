@@ -137,7 +137,7 @@ export default function HistoricoPage() {
                 Histórico de auditoria e compliance
                 </h1>
 
-                <Badge variant="info">● Atualizado hoje</Badge>
+                <Badge variant="info">● Atualizado </Badge>
             </div>
 
             <p className="text-sm text-gray-600">
