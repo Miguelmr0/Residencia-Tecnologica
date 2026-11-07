@@ -141,7 +141,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-bold">
-              Olá, Mariana
+              Olá, ADMIN
             </h1>
 
             <Badge variant="info">● Atualizado hoje</Badge>

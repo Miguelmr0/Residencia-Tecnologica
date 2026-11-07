@@ -120,7 +120,7 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
             MS
           </div>
           <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
-            <p className="truncate text-sm font-semibold">Mariana Silva</p>
+            <p className="truncate text-sm font-semibold">ADMIN</p>
             <p className="truncate text-xs text-muted-foreground">Compras / Admin</p>
           </div>
           <Button variant="ghost" size="icon" aria-label="Sair">
