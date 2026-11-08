@@ -1,11 +1,29 @@
 import type { Task, TaskStatus, Unit, UnitDocument, Contract, Historico } from "@/types";
 
-const units: Unit[] = [
+const baseUnits: Unit[] = [
   { id: "u1", name: "Alpha Tecnologia Ltda.", city: "Recife", manager: "Ana Souza", status: "ativa" },
   { id: "u2", name: "Beta Serviços Corporativos", city: "Olinda", manager: "Carlos Lima", status: "em_homologacao" },
   { id: "u3", name: "Delta Segurança Patrimonial", city: "Caruaru", manager: "Marta Reis", status: "inativa" },
   { id: "u4", name: "Gamma Logística S.A.", city: "Jaboatão", manager: "Paulo Nunes", status: "ativa" },
 ];
+
+// Mais 26 unidades para testar a paginação (o PDF pede dezenas de unidades).
+// Geradas de forma previsível: são sempre as mesmas a cada recarga.
+const prefixes = ["Omega", "Sigma", "Lambda", "Kappa", "Atlas", "Vértice", "Horizonte", "Nova", "Prisma", "Aurora", "Titan", "Orion", "Zênite"];
+const suffixes = ["Serviços Ltda.", "Comércio S.A."];
+const cities = ["Recife", "Olinda", "Caruaru", "Jaboatão", "João Pessoa", "Maceió"];
+const managers = ["Camila Rocha", "Vanessa Prado", "Juliana Paes", "Carlos Nobre", "Rafael Dias", "Beatriz Lopes"];
+const statusCycle: Unit["status"][] = ["ativa", "ativa", "em_homologacao", "ativa", "inativa", "ativa", "em_homologacao"];
+
+const generatedUnits: Unit[] = Array.from({ length: 26 }, (_, i) => ({
+  id: `u${i + 5}`,
+  name: `${prefixes[i % prefixes.length]} ${suffixes[Math.floor(i / prefixes.length)]}`,
+  city: cities[i % cities.length],
+  manager: managers[(i + 1) % managers.length],
+  status: statusCycle[i % statusCycle.length],
+}));
+
+const units: Unit[] = [...baseUnits, ...generatedUnits];
 
 const documents: UnitDocument[] = [
   { id: "d1", unitId: "u1", title: "Certidão Negativa (CND Federal)", expiresAt: "2027-03-10" },
@@ -14,12 +32,44 @@ const documents: UnitDocument[] = [
   { id: "d4", unitId: "u4", title: "Seguro de Responsabilidade Civil", expiresAt: "2026-12-30" },
 ];
 
-let tasks: Task[] = [
+const baseTasks: Task[] = [
   { id: "t1", unitId: "u1", title: "Renovar certidão", status: "pendente", dueDate: "2026-10-12" },
   { id: "t2", unitId: "u2", title: "Revisar aditivo contratual", status: "em_andamento", dueDate: "2026-10-20" },
   { id: "t3", unitId: "u4", title: "Atualizar cadastro bancário", status: "concluida", dueDate: "2026-09-30" },
   { id: "t4", unitId: "u3", title: "Encerrar pendências", status: "pendente", dueDate: "2026-11-05" },
 ];
+
+// Mais 32 tarefas para testar a paginação e os filtros da tela de Tarefas.
+// Os prazos são relativos a HOJE (de 3 dias atrás até 11 dias à frente), assim a
+// demonstração sempre mostra tarefas atrasadas, de hoje e futuras.
+const taskTitles = [
+  "Solicitar novo balanço patrimonial",
+  "Validar documentação de homologação",
+  "Agendar auditoria presencial de segurança",
+  "Notificar fornecedor sobre licença ambiental",
+  "Conferir certidão FGTS",
+  "Revisar cláusulas de privacidade (LGPD)",
+  "Atualizar apólice de seguro",
+  "Validar contrato social atualizado",
+];
+const taskStatusCycle: TaskStatus[] = [
+  "pendente", "em_andamento", "pendente", "concluida", "em_andamento", "pendente", "pendente",
+];
+
+// Data de hoje + N dias, no formato "AAAA-MM-DD".
+function isoDaysFromToday(days: number): string {
+  return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+const generatedTasks: Task[] = Array.from({ length: 32 }, (_, i) => ({
+  id: `t${i + 5}`,
+  unitId: `u${((i * 7) % 30) + 1}`, // u1 até u30, espalhadas entre os fornecedores
+  title: taskTitles[i % taskTitles.length],
+  status: taskStatusCycle[i % taskStatusCycle.length],
+  dueDate: isoDaysFromToday((i % 15) - 3),
+}));
+
+let tasks: Task[] = [...baseTasks, ...generatedTasks];
 
 let contracts: Contract[] = [
   { id: "c1", code: "CTR-2024-0104", object: "Prestação de Serviços de Suporte Cloud & Dev", supplierName: "Alpha Tecnologia Ltda", supplierCnpj: "18.234.901/0001-44", type: "Serviço", monthlyValue: 45000, annualValue: 540000, startDate: "2024-09-26", endDate: "2026-09-26", readjustmentIndex: "IPCA", nextReadjustmentDate: "2026-09-26", responsible: "Mariana Silva", status: "a_renovar" },
