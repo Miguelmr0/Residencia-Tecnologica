@@ -25,3 +25,40 @@ export interface Task {
   dueDate: string; 
 }
 //NÃO MEXER//
+export type ContractStatus = "vigente" | "a_renovar" | "em_aditivo" | "vencido";
+
+export interface Contract {
+  id: string;
+  code: string;
+  object: string;
+  supplierName: string;
+  supplierCnpj: string;
+  type: string;
+  monthlyValue: number;
+  annualValue: number;
+  startDate: string;
+  endDate: string;
+  readjustmentIndex: string;
+  nextReadjustmentDate: string;
+  responsible: string;
+  status: ContractStatus;
+}
+
+export type HistoricoLevel = "sucesso" | "informativo" | "alerta" | "critico";
+export type HistoricoOrigin = "usuario" | "robo" | "sistema";
+
+export interface Historico {
+  id: string;
+  timestamp: string;
+  actorName: string;
+  actorRole: string;
+  origin: HistoricoOrigin;
+  supplierName: string;
+  supplierCnpj: string;
+  type: string;
+  action: string;
+  description: string;
+  ipAddress: string;
+  detail: string;
+  level: HistoricoLevel;
+}

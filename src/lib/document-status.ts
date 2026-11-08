@@ -3,6 +3,8 @@ import type { DocumentStatus } from "@/types";
 
 export const EXPIRING_THRESHOLD_DAYS = 15;
 
+export type FiltroDoc = "todos" | "expirados" | "proximos";
+
 export function getDocumentStatus(
   expiresAt: string,
   today: Date = new Date()
