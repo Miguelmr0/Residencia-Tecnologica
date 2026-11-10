@@ -16,6 +16,7 @@ import { TasksWorkload } from "@/features/tasks/components/tasks-workload";
 import { useUpdateTaskStatus } from "@/features/tasks/hooks";
 import { useTaskItems } from "@/features/tasks/items-hooks";
 import type { TaskItem } from "@/features/tasks/types";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   EMPTY_FILTERS,
   TASKS_PAGE_SIZE,
@@ -46,6 +47,9 @@ export default function TarefasPage() {
   const [detailsId, setDetailsId] = useState<string | null>(null);
   const [completingId, setCompletingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  // Ids aguardando confirmação (lista vazia = modal fechado)
+const [confirmingIds, setConfirmingIds] = useState<string[]>([]);
 
   // ---------- Valores derivados (nada é guardado, tudo é calculado) ----------
   const today = useMemo(() => new Date(), []); // a mesma data durante a visita à tela
@@ -114,6 +118,26 @@ export default function TarefasPage() {
     }
   }
 
+    // Só pede a confirmação; a conclusão acontece em confirmCompletion
+function requestComplete(id: string) {
+  setConfirmingIds([id]);
+}
+
+function requestCompleteSelected() {
+  setConfirmingIds(selectedIds);
+}
+
+// Roda quando o usuário clica em "Concluir" no modal
+function confirmCompletion() {
+  if (confirmingIds.length === 1) {
+    handleComplete(confirmingIds[0]);
+  } else {
+    handleCompleteSelected();
+  }
+  setConfirmingIds([]);
+}
+
+
   function handleNewTask() {
     // Ainda não existe formulário de tarefa. Quando existir (modal), abra-o aqui.
     window.alert("Cadastro de nova tarefa: em desenvolvimento.");
@@ -172,7 +196,7 @@ export default function TarefasPage() {
         onToggle={toggleOne}
         onToggleAll={toggleAllOnPage}
         onClearSelection={() => setSelectedIds([])}
-        onCompleteSelected={handleCompleteSelected}
+        onCompleteSelected={requestCompleteSelected}
         onComplete={handleComplete}
         onAssign={handleAssign}
         onDetails={setDetailsId}
@@ -225,7 +249,16 @@ export default function TarefasPage() {
         task={detailsTask}
         completing={completingId === detailsId}
         onClose={() => setDetailsId(null)}
-        onComplete={handleComplete}
+        onComplete={requestComplete}
+      />
+
+       <ConfirmDialog
+        open={confirmingIds.length > 0}
+        title={confirmingIds.length === 1 ? "Concluir tarefa?" : `Concluir ${confirmingIds.length} tarefas?`}
+        description="Concluídas, as tarefas saem do checklist. Tarefas de fornecedores bloqueados não podem ser alteradas."
+        confirmLabel="Concluir"
+        onConfirm={confirmCompletion}
+        onCancel={() => setConfirmingIds([])}
       />
     </div>
   );
