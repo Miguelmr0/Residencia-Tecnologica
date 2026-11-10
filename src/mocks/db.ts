@@ -116,6 +116,33 @@ export async function fetchTasks(): Promise<Task[]> {
   return tasks;
 }
 
+
+
+export async function createTask(
+  data: Omit<Task, "id">
+): Promise<Task> {
+  await delay(300);
+
+  const unit = units.find((u) => u.id === data.unitId);
+
+  if (!unit) {
+    throw new Error("Unidade não encontrada");
+  }
+
+  if (unit.status === "inativa") {
+    throw new Error("Unidade inativa: não é possível criar tarefas");
+  }
+
+  const newTask: Task = {
+    id: `t${Math.max(0, ...tasks.map((t) => Number(t.id.slice(1)))) + 1}`,
+    ...data,
+  };
+
+  tasks = [...tasks, newTask];
+
+  return newTask;
+}
+
 export async function fetchHistorico(): Promise<Historico[]> {
   await delay();
   return historico;
