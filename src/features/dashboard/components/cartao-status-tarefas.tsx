@@ -1,8 +1,12 @@
-"use client";
-import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import type { Task } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useTasks } from "@/features/tasks/hooks";
+import { CheckCircle2 } from "lucide-react";
 
-export default function StatusTarefas() {
+// gráfico
+function StatusTarefas() {
   
   const { data: tasks = [] } = useTasks();
   
@@ -111,6 +115,54 @@ export default function StatusTarefas() {
 
       </div>
 
+    </div>
+  );
+}
+
+// skeleton
+export function EsqueletoStatusTarefas() {
+  return (
+    <div className="min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="mt-8 h-44 w-full" />
+    </div>
+  );
+}
+
+// terceira coluna, cartão 2: status das tarefas
+export function CartaoStatusTarefas({ tasks }: { tasks: Task[] }) {
+  const tarefas = tasks.length;
+
+  return (
+    <div className="w-full h-auto sm:min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-[21px] font-bold">
+            Status das tarefas
+          </p>
+
+          <Badge variant="info" className="ml-auto">
+            ● Total: {tarefas} tarefas
+          </Badge>
+        </div>
+        <p className="text-sm text-gray-600">
+          Visão consolidada de pendências da equipe
+        </p>
+
+        <StatusTarefas />
+
+        <div className="mt-7 flex items-center justify-between gap-3">
+
+          <p className="text-sm text-gray-600">
+            Tempo médio de atendimento:1.8 dias
+          </p>
+
+          <Link href="/tarefas" className="text-sm font-medium text-blue-700 hover:underline">
+            Gerenciar tarefas -&gt;
+          </Link>
+
+        </div>
+      </div>
     </div>
   );
 }

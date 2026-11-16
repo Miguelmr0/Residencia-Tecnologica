@@ -1,8 +1,11 @@
-"use client";
-
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import type { Unit } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUnits } from "@/features/units/hooks";
 
-export default function StatusFornecedores() {
+// gráfico
+function StatusFornecedores() {
   
   const { data: units = [] } = useUnits();
   
@@ -130,6 +133,54 @@ export default function StatusFornecedores() {
 
       </div>
 
+    </div>
+  );
+}
+
+// skeleton
+export function EsqueletoStatusFornecedores() {
+  return (
+    <div className="min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="mt-8 h-44 w-full" />
+    </div>
+  );
+}
+
+// terceira coluna, cartão 1: status dos fornecedores
+export function CartaoStatusFornecedores({ units }: { units: Unit[] }) {
+  const fornecedores = units.length;
+
+  return (
+    <div className="w-full h-auto sm:min-h-[358px] rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-[21px] font-bold">
+            Status dos fornecedores
+          </p>
+
+          <Badge variant="info" className="ml-auto">
+            ● Total: {fornecedores}
+          </Badge>
+        </div>
+        <p className="text-sm text-gray-600">
+          Distribuição do ciclo de conformidade da base
+        </p>
+
+        <StatusFornecedores />
+
+        <div className="mt-18 flex items-center justify-between gap-3">
+
+          <p className="text-sm text-gray-600">
+            Homologação media: 4.2 dias
+          </p>
+
+          <Link href="/unidades" className="text-sm font-medium text-blue-700 hover:underline">
+            Ver detalhes -&gt;
+          </Link>
+
+        </div>
+      </div>
     </div>
   );
 }
