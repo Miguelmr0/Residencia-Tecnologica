@@ -94,7 +94,7 @@ Em alguns pontos o enunciado não define o comportamento, então adotamos estas 
 - [x] Regra de status do documento, com testes
 - [x] Dados mockados e hooks de leitura
 - [x] Layout responsivo (sidebar e topbar) e componentes base
-- [ ] Dashboard (cards e painéis de status)
+- [x] Dashboard (cards e painéis de status)
 - [ ] Lista de Unidades, com busca, filtros e paginação
 - [ ] Lista de Documentos
 - [ ] Lista de Tarefas, com confirmação ao concluir
