@@ -7,7 +7,6 @@ import {
   FolderOpen,
   LayoutDashboard,
   ListChecks,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   SquareText,
@@ -16,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/features/auth/logout-button";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -123,9 +123,7 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
             <p className="truncate text-sm font-semibold">Mariana Silva</p>
             <p className="truncate text-xs text-muted-foreground">Compras / Admin</p>
           </div>
-          <Button variant="ghost" size="icon" aria-label="Sair">
-            <LogOut className="h-5 w-5" aria-hidden />
-          </Button>
+          <LogoutButton />
         </div>
       </aside>
     </>
