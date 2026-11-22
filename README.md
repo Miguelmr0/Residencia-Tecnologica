@@ -99,6 +99,6 @@ Em alguns pontos o enunciado não define o comportamento, então adotamos estas 
 - [ ] Lista de Documentos
 - [ ] Lista de Tarefas, com confirmação ao concluir
 - [ ] Detalhamento da Unidade
-- [ ] Login e proteção de rotas
-- [ ] Datas no formato dd/MM/yyyy
+- [x] Login e proteção de rotas
+- [x] Datas no formato dd/MM/yyyy
 - [ ] Extras: camada de API própria, auditoria, dark mode, mais testes e deploy
