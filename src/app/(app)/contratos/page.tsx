@@ -27,40 +27,44 @@ const statusConfig: Record<ContractStatus, { label: string; variant: BadgeVarian
 
 const columnHelper = legacyCreateColumnHelper<Contract>();
 
-const columns: LegacyColumnDef<Contract, any>[] = [
-  columnHelper.accessor("code", {
+const columns: LegacyColumnDef<Contract, unknown>[] = [
+  columnHelper.display({
+    id: "code",
     header: "Código & Objeto",
     cell: (info) => (
       <div>
-        <p className="font-medium text-blue-700">{info.getValue()}</p>
+        <p className="font-medium text-blue-700">{info.row.original.code}</p>
         <p className="text-sm text-muted-foreground">{info.row.original.object}</p>
       </div>
     ),
   }),
-  columnHelper.accessor("supplierName", {
+  columnHelper.display({
+    id: "supplierName",
     header: "Fornecedor",
     cell: (info) => (
       <div>
-        <p>{info.getValue()}</p>
+        <p>{info.row.original.supplierName}</p>
         <p className="text-xs text-muted-foreground">{info.row.original.supplierCnpj}</p>
       </div>
     ),
   }),
-  columnHelper.accessor("monthlyValue", {
+  columnHelper.display({
+    id: "monthlyValue",
     header: "Valor Mês / Ano",
     cell: (info) => (
       <div>
-        <p>R$ {info.getValue().toLocaleString("pt-BR")}/mês</p>
+        <p>R$ {info.row.original.monthlyValue.toLocaleString("pt-BR")}/mês</p>
         <p className="text-xs text-muted-foreground">
           R$ {info.row.original.annualValue.toLocaleString("pt-BR")}/ano
         </p>
       </div>
     ),
   }),
-  columnHelper.accessor("status", {
+  columnHelper.display({
+    id: "status",
     header: "Status",
     cell: (info) => {
-      const config = statusConfig[info.getValue() as ContractStatus];
+      const config = statusConfig[info.row.original.status];
       return <Badge variant={config.variant}>{config.label}</Badge>;
     },
   }),
