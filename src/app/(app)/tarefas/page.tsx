@@ -17,6 +17,8 @@ import { useUpdateTaskStatus } from "@/features/tasks/hooks";
 import { useTaskItems } from "@/features/tasks/items-hooks";
 import type { TaskItem } from "@/features/tasks/types";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { NewTaskDialog } from "@/features/tasks/components/new-task-dialog";
+import { useUnits } from "@/features/units/hooks";
 import {
   EMPTY_FILTERS,
   TASKS_PAGE_SIZE,
@@ -36,6 +38,7 @@ import {
 export default function TarefasPage() {
   // Dados do servidor (mockados) ficam no TanStack Query...
   const { data, isLoading, isError, isFetching, refetch } = useTaskItems();
+  const { data: unitsData } = useUnits();
   const updateTask = useUpdateTaskStatus();
   const tasks = useMemo(() => data ?? [], [data]);
 
@@ -50,6 +53,7 @@ export default function TarefasPage() {
 
   // Ids aguardando confirmação (lista vazia = modal fechado)
 const [confirmingIds, setConfirmingIds] = useState<string[]>([]);
+const [newTaskOpen, setNewTaskOpen] = useState(false);
 
   // ---------- Valores derivados (nada é guardado, tudo é calculado) ----------
   const today = useMemo(() => new Date(), []); // a mesma data durante a visita à tela
@@ -139,8 +143,7 @@ function confirmCompletion() {
 
 
   function handleNewTask() {
-    // Ainda não existe formulário de tarefa. Quando existir (modal), abra-o aqui.
-    window.alert("Cadastro de nova tarefa: em desenvolvimento.");
+    setNewTaskOpen(true);
   }
 
   function handleAutomations() {
@@ -260,6 +263,13 @@ function confirmCompletion() {
         onConfirm={confirmCompletion}
         onCancel={() => setConfirmingIds([])}
       />
+
+      <NewTaskDialog
+        open={newTaskOpen}
+        onClose={() => setNewTaskOpen(false)}
+        units={unitsData ?? []}
+      />
+      
     </div>
   );
 }
