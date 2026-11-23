@@ -1,5 +1,7 @@
 import type { Task, TaskStatus, Unit, UnitDocument, Contract, Historico } from "@/types";
 
+import type { SupplierDetails } from "@/features/units/types";
+
 const baseUnits: Unit[] = [
   { id: "u1", name: "Alpha Tecnologia Ltda.", city: "Recife", manager: "Ana Souza", status: "ativa" },
   { id: "u2", name: "Beta Serviços Corporativos", city: "Olinda", manager: "Carlos Lima", status: "em_homologacao" },
@@ -23,7 +25,7 @@ const generatedUnits: Unit[] = Array.from({ length: 26 }, (_, i) => ({
   status: statusCycle[i % statusCycle.length],
 }));
 
-const units: Unit[] = [...baseUnits, ...generatedUnits];
+let units: Unit[] = [...baseUnits, ...generatedUnits];
 
 const documents: UnitDocument[] = [
   { id: "d1", unitId: "u1", title: "Certidão Negativa (CND Federal)", expiresAt: "2027-03-10" },
@@ -92,6 +94,32 @@ const delay = (ms = 500) => new Promise<void>((resolve) => setTimeout(resolve, m
 export async function fetchUnits(): Promise<Unit[]> {
   await delay();
   return units;
+}
+
+// Dados extras (CNPJ, categoria, contato...) dos fornecedores criados pelo formulário.
+// O Unit oficial não tem esses campos, então ficam à parte, ligados ao id.
+const createdDetails = new Map<string, SupplierDetails>();
+
+export function getCreatedSupplierDetails(id: string): SupplierDetails | undefined {
+  return createdDetails.get(id);
+}
+
+export type NewSupplierInput = Omit<Unit, "id"> & SupplierDetails;
+
+export async function createSupplier(data: NewSupplierInput): Promise<Unit> {
+  await delay(300);
+  const { name, city, manager, status, ...details } = data;
+  const newUnit: Unit = {
+    id: `u${Math.max(0, ...units.map((u) => Number(u.id.slice(1)))) + 1}`,
+    name,
+    city,
+    manager,
+    status,
+  };
+  // Lista nova (e não push), para o TanStack Query perceber a mudança
+  units = [...units, newUnit];
+  createdDetails.set(newUnit.id, details);
+  return newUnit;
 }
 
 export async function fetchDocuments(): Promise<UnitDocument[]> {

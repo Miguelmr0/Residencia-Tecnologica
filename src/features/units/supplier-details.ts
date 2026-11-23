@@ -1,6 +1,8 @@
 import type { Unit } from "@/types";
 import type { Supplier, SupplierDetails } from "./types";
 
+import { getCreatedSupplierDetails } from "@/mocks/db";
+
 // O Unit oficial só tem nome, cidade, gerente e status. O Figma mostra mais
 // coisas (CNPJ, categoria, contato, score, documentos). Esses dados extras
 // ficam aqui, ligados ao id da unidade, sem alterar o tipo da squad.
@@ -63,7 +65,8 @@ function generateDetails(unit: Unit): SupplierDetails {
 
 // Junta o Unit oficial com os dados extras.
 export function toSupplier(unit: Unit): Supplier {
-  return { ...unit, ...(figmaDetails[unit.id] ?? generateDetails(unit)) };
+  const details = getCreatedSupplierDetails(unit.id) ?? figmaDetails[unit.id] ?? generateDetails(unit);
+  return { ...unit, ...details };
 }
 
 export function toSuppliers(units: Unit[]): Supplier[] {

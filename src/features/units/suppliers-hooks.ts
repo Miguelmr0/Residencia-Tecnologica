@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
-import { fetchUnits } from "@/mocks/db";
+import { createSupplier, fetchUnits, type NewSupplierInput } from "@/mocks/db";
 import { toSuppliers } from "./supplier-details";
 
 // Usa a MESMA chave de cache do useUnits (queryKeys.units): a lista e o
@@ -11,5 +11,15 @@ export function useSuppliers() {
     queryKey: queryKeys.units,
     queryFn: fetchUnits,
     select: toSuppliers,
+  });
+}
+
+// Cria um fornecedor e avisa o cache: lista, cards e Dashboard se atualizam sozinhos.
+export function useCreateSupplier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: NewSupplierInput) => createSupplier(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.units }),
   });
 }

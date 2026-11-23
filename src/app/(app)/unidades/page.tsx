@@ -13,6 +13,7 @@ import { UnitsStats } from "@/features/units/components/units-stats";
 import { UnitsTable } from "@/features/units/components/units-table";
 import { UnitsTableSkeleton } from "@/features/units/components/units-table-skeleton";
 import { useSuppliers } from "@/features/units/suppliers-hooks";
+import { NewSupplierDialog } from "@/features/units/components/new-supplier-dialog";
 import {
   EMPTY_FILTERS,
   exportSuppliersToCsv,
@@ -34,6 +35,7 @@ export default function UnidadesPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [newOpen, setNewOpen] = useState(false);
 
   // ---------- Valores derivados (nada é guardado, tudo é calculado) ----------
   const stats = useMemo(() => getSupplierStats(suppliers), [suppliers]);
@@ -74,10 +76,9 @@ export default function UnidadesPage() {
 
   const selectedSuppliers = suppliers.filter((s) => selectedIds.includes(s.id));
 
-  function handleNewSupplier() {
-    // Ainda não existe formulário de cadastro. Quando existir (modal), abra-o aqui.
-    window.alert("Cadastro de novo fornecedor: em desenvolvimento.");
-  }
+function handleNewSupplier() {
+  setNewOpen(true);
+}
 
   function handleRequestDocs() {
     // Mock: não há API real para solicitar documentos.
@@ -171,6 +172,14 @@ export default function UnidadesPage() {
         onExport={() => exportSuppliersToCsv(filtered)}
         onGenerateLink={handleGenerateLink}
       />
+      
+      <NewSupplierDialog
+        open={newOpen}
+        onClose={() => setNewOpen(false)}
+        categories={categories}
+        existingCnpjs={suppliers.map((s) => s.cnpj)}
+      />
+      
     </div>
   );
 }
