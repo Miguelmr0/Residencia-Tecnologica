@@ -10,6 +10,12 @@ import type { TaskDetails, TaskItem } from "./types";
 // Equipe que recebe as tarefas geradas (nomes iguais aos do Figma).
 export const ASSIGNEES = ["Mariana Silva", "Carlos Souza", "Amanda Costa", "Roberto Lima"];
 
+const createdTaskDetails = new Map<string, TaskDetails>();
+
+export function saveCreatedTaskDetails(id: string, details: TaskDetails) {
+  createdTaskDetails.set(id, details);
+}
+
 // As 4 tarefas que já existem no mock oficial, com os dados do Figma.
 const figmaDetails: Record<string, TaskDetails> = {
   t1: {
@@ -115,7 +121,7 @@ function toTaskItem(task: Task, suppliers: Map<string, Supplier>): TaskItem {
 
   return {
     ...task,
-    ...(figmaDetails[task.id] ?? generateDetails(task)),
+    ...(createdTaskDetails.get(task.id) ?? figmaDetails[task.id] ?? generateDetails(task)),
     supplierName: supplier?.name ?? "Fornecedor não encontrado",
     supplierCnpj: supplier?.cnpj ?? "—",
     // Unidade inativa = fornecedor bloqueado (a tarefa fica somente leitura no mock).
