@@ -95,9 +95,9 @@ Em alguns pontos o enunciado não define o comportamento, então adotamos estas 
 - [x] Dados mockados e hooks de leitura
 - [x] Layout responsivo (sidebar e topbar) e componentes base
 - [x] Dashboard (cards e painéis de status)
-- [ ] Lista de Unidades, com busca, filtros e paginação
-- [ ] Lista de Documentos
-- [ ] Lista de Tarefas, com confirmação ao concluir
+- [x] Lista de Unidades, com busca, filtros e paginação
+- [x] Lista de Documentos
+- [x] Lista de Tarefas, com confirmação ao concluir
 - [ ] Detalhamento da Unidade
 - [x] Login e proteção de rotas
 - [x] Datas no formato dd/MM/yyyy
