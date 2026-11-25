@@ -11,7 +11,7 @@ export function BrandLogo({ className }: { className?: string }) {
       </div>
       <div className="leading-tight">
         <p className="text-xl font-bold text-ink">
-          Vendor<span className="text-brand-700">Hub</span>
+          Vendedor<span className="text-brand-700">Hub</span>
         </p>
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Enterprise Procurement Suite

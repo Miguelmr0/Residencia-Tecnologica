@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/features/auth/login-form";
 import { LoginHero } from "@/features/auth/login-hero";
 
-export const metadata: Metadata = { title: "Entrar | VendorHub" };
+export const metadata: Metadata = { title: "Entrar | VendedorHub" };
 
 export default function LoginPage() {
   return (

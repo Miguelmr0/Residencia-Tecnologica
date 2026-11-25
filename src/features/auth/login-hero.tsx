@@ -14,7 +14,7 @@ const certifications = ["LGPD Compliant", "ISO 27001", "SOC 2 Type II"];
 export function LoginHero() {
   return (
     <aside
-      aria-label="Apresentação do VendorHub"
+      aria-label="Apresentação do VendedorHub"
       className="hidden flex-col justify-between gap-8 rounded-2xl bg-brand-50 p-8 lg:flex xl:p-10"
     >
       <div className="space-y-6">

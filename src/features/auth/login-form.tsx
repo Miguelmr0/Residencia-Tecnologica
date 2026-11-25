@@ -122,7 +122,7 @@ export function LoginForm() {
         <div>
           <h1 className="text-xl font-bold">Acesse sua conta</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Insira suas credenciais corporativas para entrar no console VendorHub.
+            Insira suas credenciais corporativas para entrar no console VendedorHub.
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export function LoginForm() {
               "Redirecionando..."
             ) : (
               <>
-                Entrar no VendorHub
+                Entrar no VendedorHub
                 <ArrowRight aria-hidden />
               </>
             )}
@@ -238,7 +238,7 @@ export function LoginForm() {
         </div>
 
         <p className="text-center text-sm text-muted-foreground">
-          Sua empresa ainda não possui acesso ao VendorHub?{" "}
+          Sua empresa ainda não possui acesso ao VendedorHub?{" "}
           <InlineAction onClick={showNotice}>Solicitar demonstração institucional</InlineAction>
         </p>
       </Cards>

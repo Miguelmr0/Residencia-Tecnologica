@@ -7,7 +7,7 @@ type Resumo = { fornecedores: number; fornecedoresAtivos: number; documentosAVen
 
 function montarCsvRelatorio(units: Unit[], resumo: Resumo) {
   const linhas: string[] = [];
-  linhas.push("Relatorio VendorHub");
+  linhas.push("Relatorio VendedorHub");
   linhas.push(`Gerado em: ${new Date().toLocaleString("pt-BR")}`);
   linhas.push("");
   linhas.push("Indicador;Valor");
@@ -28,7 +28,7 @@ function baixarCsv(csv: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `relatorio-vendorhub-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `relatorio-vendedorhub-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

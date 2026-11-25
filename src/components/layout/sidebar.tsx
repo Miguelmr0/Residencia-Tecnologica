@@ -71,7 +71,7 @@ export function Sidebar({ open, collapsed, onClose, onToggleCollapsed }: Sidebar
             V
           </div>
           <span className={cn("text-xl font-bold text-brand-700", collapsed && "lg:hidden")}>
-            VendorHub
+            VendedorHub
           </span>
         </div>
 
