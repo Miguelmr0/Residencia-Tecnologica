@@ -98,7 +98,7 @@ Em alguns pontos o enunciado não define o comportamento, então adotamos estas 
 - [x] Lista de Unidades, com busca, filtros e paginação
 - [x] Lista de Documentos
 - [x] Lista de Tarefas, com confirmação ao concluir
-- [ ] Detalhamento da Unidade
+- [x] Detalhamento da Unidade
 - [x] Login e proteção de rotas
 - [x] Datas no formato dd/MM/yyyy
 - [ ] Extras: camada de API própria, auditoria, dark mode, mais testes e deploy
